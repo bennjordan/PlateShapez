@@ -42,9 +42,7 @@ def get_overlay_region(
 
 def ensure_rgb(image: Image.Image) -> Image.Image:
     """Ensure image is in RGB mode."""
-    if image.mode != "RGB":
-        return image.convert("RGB")
-    return image
+    return image.convert("RGB") if image.mode != "RGB" else image
 
 
 def ensure_rgba(image: Image.Image) -> Image.Image:
