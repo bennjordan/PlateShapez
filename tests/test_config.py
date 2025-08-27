@@ -153,17 +153,17 @@ class TestConfigSystem:
                         "name": "shapes",
                         "params": {
                             "num_shapes": 15,  # Override this
-                            "min_size": 4,     # Override this
+                            "min_size": 4,  # Override this
                             # Don't specify max_size - should use default
-                        }
+                        },
                     },
                     {
-                        "name": "noise", 
+                        "name": "noise",
                         "params": {
                             "intensity": 25  # Only specify intensity
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             }
             yaml.dump(yaml_config, f)
             f.flush()
@@ -177,14 +177,14 @@ class TestConfigSystem:
 
             # Perturbations should be completely replaced (not merged)
             assert len(cfg["perturbations"]) == 2
-            
+
             # Find shapes perturbation
             shapes_pert = next(p for p in cfg["perturbations"] if p["name"] == "shapes")
             assert shapes_pert["params"]["num_shapes"] == 15  # Overridden
-            assert shapes_pert["params"]["min_size"] == 4    # Overridden
+            assert shapes_pert["params"]["min_size"] == 4  # Overridden
             # max_size should not be present since it wasn't specified
             assert "max_size" not in shapes_pert["params"]
-            
+
             # Find noise perturbation
             noise_pert = next(p for p in cfg["perturbations"] if p["name"] == "noise")
             assert noise_pert["params"]["intensity"] == 25  # Overridden

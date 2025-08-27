@@ -1,10 +1,14 @@
+import io
 import json
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 from PIL import Image
+
+from plateshapez import DatasetGenerator
 
 # Get repository root dynamically
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -164,8 +168,8 @@ perturbations:
         first_img = Image.open(images[0])
         last_img = Image.open(images[-1])
         assert first_img.size == (300, 200)  # Same as background
-        assert last_img.size == (300, 200)   # Same as background
-        
+        assert last_img.size == (300, 200)  # Same as background
+
         # Verify all images can be opened without error
         assert all(Image.open(img_path).size == (300, 200) for img_path in images)
 
@@ -173,12 +177,19 @@ perturbations:
         def verify_metadata_structure(label_path):
             with open(label_path) as f:
                 metadata = json.load(f)
-            
+
             # Verify expected metadata fields
-            required_fields = ["background", "overlay", "overlay_position", 
-                             "overlay_size", "perturbations", "random_seed", "variant_index"]
+            required_fields = [
+                "background",
+                "overlay",
+                "overlay_position",
+                "overlay_size",
+                "perturbations",
+                "random_seed",
+                "variant_index",
+            ]
             assert all(field in metadata for field in required_fields)
-            
+
             # Verify data types
             assert isinstance(metadata["overlay_position"], list)
             assert len(metadata["overlay_position"]) == 2
@@ -188,7 +199,7 @@ perturbations:
             assert isinstance(metadata["random_seed"], int)
             assert isinstance(metadata["variant_index"], int)
             return metadata
-        
+
         # Verify first and last metadata files
         verify_metadata_structure(labels[0])
         verify_metadata_structure(labels[-1])
@@ -245,7 +256,7 @@ dataset:
         # Verbose output should contain additional information
         output = result.stdout
         assert len(output) > 0  # Should have some output
-        
+
         # Should contain verbose-specific content
         assert "Generated" in output or "✓" in output
 
@@ -253,7 +264,7 @@ dataset:
         """Test that same seed produces identical results including metadata."""
         output_dir1 = sample_data["temp_dir"] / "dataset1"
         output_dir2 = sample_data["temp_dir"] / "dataset2"
-        
+
         # Create identical config for both runs
         config_content1 = f"""
 dataset:
@@ -273,7 +284,7 @@ perturbations:
     params:
       intensity: 10
 """
-        
+
         config_content2 = f"""
 dataset:
   backgrounds: "{sample_data["bg_dir"]}"
@@ -292,53 +303,55 @@ perturbations:
     params:
       intensity: 10
 """
-        
+
         config_file1 = sample_data["temp_dir"] / "config1.yaml"
         config_file2 = sample_data["temp_dir"] / "config2.yaml"
         config_file1.write_text(config_content1)
         config_file2.write_text(config_content2)
-        
+
         # Run first generation
         result1 = subprocess.run(
-            ["uv", "run", "python", "-m", "plateshapez", "generate", 
-             "--config", str(config_file1)],
-            capture_output=True, text=True, cwd=str(REPO_ROOT)
+            ["uv", "run", "python", "-m", "plateshapez", "generate", "--config", str(config_file1)],
+            capture_output=True,
+            text=True,
+            cwd=str(REPO_ROOT),
         )
-        
+
         # Run second generation
         result2 = subprocess.run(
-            ["uv", "run", "python", "-m", "plateshapez", "generate", 
-             "--config", str(config_file2)],
-            capture_output=True, text=True, cwd=str(REPO_ROOT)
+            ["uv", "run", "python", "-m", "plateshapez", "generate", "--config", str(config_file2)],
+            capture_output=True,
+            text=True,
+            cwd=str(REPO_ROOT),
         )
-        
+
         assert result1.returncode == 0
         assert result2.returncode == 0
-        
+
         # Compare generated files
         images1 = sorted(list((output_dir1 / "images").glob("*.png")))
         images2 = sorted(list((output_dir2 / "images").glob("*.png")))
         labels1 = sorted(list((output_dir1 / "labels").glob("*.json")))
         labels2 = sorted(list((output_dir2 / "labels").glob("*.json")))
-        
+
         assert len(images1) == len(images2)
         assert len(labels1) == len(labels2)
-        
+
         # Compare image content (pixel-perfect) - verify all pairs match
         def images_are_identical(img1_path, img2_path):
             img1 = Image.open(img1_path)
             img2 = Image.open(img2_path)
             return list(img1.getdata()) == list(img2.getdata())
-        
+
         assert all(images_are_identical(img1, img2) for img1, img2 in zip(images1, images2))
-        
+
         # Compare metadata content - verify all pairs match
         def metadata_are_identical(label1_path, label2_path):
             with open(label1_path) as f1, open(label2_path) as f2:
                 metadata1 = json.load(f1)
                 metadata2 = json.load(f2)
             return metadata1 == metadata2
-        
+
         assert all(metadata_are_identical(l1, l2) for l1, l2 in zip(labels1, labels2))
 
 
@@ -354,28 +367,29 @@ class TestAPIIntegration:
         assert DatasetGenerator is not None
         assert PERTURBATION_REGISTRY is not None
         assert len(PERTURBATION_REGISTRY) >= 4  # At least shapes, noise, warp, texture
-    
+
     def test_api_dataset_generator_instantiation(self):
         """Test DatasetGenerator instantiation and method calls."""
         import tempfile
+
         from plateshapez import DatasetGenerator
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             bg_dir = temp_path / "bg"
             overlay_dir = temp_path / "overlay"
             output_dir = temp_path / "output"
-            
+
             bg_dir.mkdir()
             overlay_dir.mkdir()
-            
+
             # Create sample files
             bg_img = Image.new("RGB", (100, 100), "white")
             bg_img.save(bg_dir / "test.jpg")
-            
+
             overlay_img = Image.new("RGBA", (50, 50), (255, 0, 0, 128))
             overlay_img.save(overlay_dir / "test.png")
-            
+
             # Test instantiation
             generator = DatasetGenerator(
                 bg_dir=bg_dir,
@@ -383,19 +397,19 @@ class TestAPIIntegration:
                 out_dir=output_dir,
                 perturbations=[{"name": "shapes", "params": {"num_shapes": 2}}],
                 random_seed=42,
-                verbose=True
+                verbose=True,
             )
-            
+
             # Test basic attributes
             assert generator.bg_dir == bg_dir
             assert generator.ov_dir == overlay_dir
             assert generator.out_dir == output_dir
             assert generator.random_seed == 42
             assert generator.verbose is True
-            
+
             # Test run method
             generator.run(n_variants=1)
-            
+
             # Verify output
             assert (output_dir / "images").exists()
             assert (output_dir / "labels").exists()
@@ -419,47 +433,43 @@ class TestAPIIntegration:
         assert "dataset" in cfg
         assert "perturbations" in cfg
         assert "logging" in cfg
-    
+
     def test_api_verbose_output_content(self):
         """Test that verbose flag produces expected content."""
-        import tempfile
-        import io
-        import sys
-        from plateshapez import DatasetGenerator
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             bg_dir = temp_path / "bg"
             overlay_dir = temp_path / "overlay"
             output_dir = temp_path / "output"
-            
+
             bg_dir.mkdir()
             overlay_dir.mkdir()
-            
+
             # Create sample files
             bg_img = Image.new("RGB", (100, 100), "white")
             bg_img.save(bg_dir / "test.jpg")
-            
+
             overlay_img = Image.new("RGBA", (50, 50), (255, 0, 0, 128))
             overlay_img.save(overlay_dir / "test.png")
-            
+
             # Capture stdout
             captured_output = io.StringIO()
             sys.stdout = captured_output
-            
+
             try:
                 generator = DatasetGenerator(
                     bg_dir=bg_dir,
                     overlay_dir=overlay_dir,
                     out_dir=output_dir,
-                    verbose=True
+                    verbose=True,
                 )
                 generator.run(n_variants=1)
             finally:
                 sys.stdout = sys.__stdout__
-            
+
             output = captured_output.getvalue()
-            
+
             # Should contain verbose-specific content
             assert "Generated" in output or "✓" in output
             assert "complete" in output

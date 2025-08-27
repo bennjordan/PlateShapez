@@ -86,16 +86,8 @@ class TestNoisePerturbation:
 
         original_array = np.array(img)
 
-        # Low intensity noise
-        low_noise = NoisePerturbation(intensity=5)
-        low_result = low_noise.apply(img, region)
-        low_array = np.array(low_result)
-
-        # High intensity noise
-        high_noise = NoisePerturbation(intensity=50)
-        high_result = high_noise.apply(img, region)
-        high_array = np.array(high_result)
-
+        low_array = self.to_low_noise_np_array(5, img, region)
+        high_array = self.to_low_noise_np_array(50, img, region)
         # Calculate differences
         low_diff = np.mean(np.abs(original_array.astype(float) - low_array.astype(float)))
         high_diff = np.mean(np.abs(original_array.astype(float) - high_array.astype(float)))
@@ -103,6 +95,13 @@ class TestNoisePerturbation:
         # High intensity should create more difference
         assert high_diff > low_diff
         assert low_diff > 0  # Some change should occur
+
+    # TODO Rename this here and in `test_noise_intensity_measurable`
+    def to_low_noise_np_array(self, intensity, img, region):
+        # Low intensity noise
+        low_noise = NoisePerturbation(intensity=intensity)
+        low_result = low_noise.apply(img, region)
+        return np.array(low_result)
 
     def test_noise_bounds_respected(self):
         """Test that noise doesn't push pixels outside valid range."""
@@ -142,6 +141,7 @@ class TestWarpPerturbation:
         from PIL import ImageDraw
 
         draw = ImageDraw.Draw(img)
+        # sourcery skip: no-loop-in-tests
         for i in range(0, 100, 10):
             draw.line([(i, 0), (i, 100)], fill="black", width=1)
             draw.line([(0, i), (100, i)], fill="black", width=1)
@@ -149,42 +149,42 @@ class TestWarpPerturbation:
         region = (10, 10, 80, 80)  # Use a smaller region
         original_array = np.array(img)
 
-        # Test with global scope to ensure warping is visible
-        low_warp = WarpPerturbation(intensity=1.0, scope="global")
-        low_result = low_warp.apply(img, region)
-        low_array = np.array(low_result)
-
-        high_warp = WarpPerturbation(intensity=10.0, scope="global")
-        high_result = high_warp.apply(img, region)
-        high_array = np.array(high_result)
-
+        low_array = self.to_low_warp_np_array(1.0, img, region)
+        high_array = self.to_low_warp_np_array(10.0, img, region)
         # Both should be different from original
         assert not np.array_equal(original_array, low_array)
         assert not np.array_equal(original_array, high_array)
+
+    # TODO Rename this here and in `test_warp_intensity_affects_distortion`
+    def to_low_warp_np_array(self, intensity, img, region):
+        # Test with global scope to ensure warping is visible
+        low_warp = WarpPerturbation(intensity=intensity, scope="global")
+        low_result = low_warp.apply(img, region)
+        return np.array(low_result)
 
     def test_warp_region_scope(self):
         """Test warp perturbation with region scope for full code coverage."""
         # Create an image with a clear pattern to see warping effects
         img = Image.new("RGB", (100, 100), color="white")
         from PIL import ImageDraw
-        
+
         draw = ImageDraw.Draw(img)
         # Add a grid pattern
         for i in range(0, 100, 10):
             draw.line([(i, 0), (i, 100)], fill="black", width=1)
             draw.line([(0, i), (100, i)], fill="black", width=1)
-        
+
         region = (20, 20, 40, 40)  # Small region in the center
         original_array = np.array(img)
-        
+
         # Test region scope - should only affect the specified region
         region_warp = WarpPerturbation(intensity=5.0, scope="region")
         region_result = region_warp.apply(img, region)
         region_array = np.array(region_result)
-        
+
         # Should be different from original
         assert not np.array_equal(original_array, region_array)
-        
+
         # Check that areas outside the region are unchanged
         # Top-left corner (outside region)
         assert np.array_equal(original_array[0:10, 0:10], region_array[0:10, 0:10])
@@ -226,16 +226,8 @@ class TestTexturePerturbation:
 
         original_array = np.array(img)
 
-        # Low intensity
-        low_texture = TexturePerturbation(type="grain", intensity=0.1)
-        low_result = low_texture.apply(img, region)
-        low_array = np.array(low_result)
-
-        # High intensity
-        high_texture = TexturePerturbation(type="grain", intensity=0.8)
-        high_result = high_texture.apply(img, region)
-        high_array = np.array(high_result)
-
+        low_array = self.to_low_texture_np_array(0.1, img, region)
+        high_array = self.to_low_texture_np_array(0.8, img, region)
         # Calculate differences
         low_diff = np.mean(np.abs(original_array.astype(float) - low_array.astype(float)))
         high_diff = np.mean(np.abs(original_array.astype(float) - high_array.astype(float)))
@@ -243,37 +235,64 @@ class TestTexturePerturbation:
         # High intensity should create more difference
         assert high_diff > low_diff
 
+    # TODO Rename this here and in `test_texture_intensity_affects_result`
+    def to_low_texture_np_array(self, intensity, img, region):
+        # Low intensity
+        low_texture = TexturePerturbation(type="grain", intensity=intensity)
+        low_result = low_texture.apply(img, region)
+        return np.array(low_result)
+
 
 class TestPerturbationChannelCompatibility:
     """Test perturbations work with different image channel counts."""
-    
-    @pytest.mark.parametrize("mode,channels", [
-        ("L", 1),    # Grayscale
-        ("RGB", 3),  # RGB
-        ("RGBA", 4), # RGBA
-    ])
+
+    @pytest.mark.parametrize(
+        "mode,channels",
+        [
+            ("L", 1),  # Grayscale
+            ("RGB", 3),  # RGB
+            ("RGBA", 4),  # RGBA
+        ],
+    )
     def test_texture_grain_channel_compatibility(self, mode, channels):
         """Test grain texture works with different channel counts."""
-        img = Image.new(mode, (50, 50), color=128 if mode == "L" else (128, 128, 128, 255)[:channels])
+        from typing import Union
+
+        color: Union[int, tuple[int, int, int], tuple[int, int, int, int]]
+        if mode == "L":
+            color = 128
+        elif mode == "RGB":
+            color = (128, 128, 128)
+        else:  # RGBA
+            color = (128, 128, 128, 255)
+        img = Image.new(mode, (50, 50), color=color)
         region = (10, 10, 30, 30)
-        
+
         perturbation = TexturePerturbation(type="grain", intensity=0.5)
         result = perturbation.apply(img, region)
-        
+
         assert isinstance(result, Image.Image)
         assert result.mode == mode
         assert result.size == img.size
-    
+
     @pytest.mark.parametrize("mode", ["L", "RGB", "RGBA"])
     def test_noise_channel_compatibility(self, mode):
         """Test noise perturbation works with different channel counts."""
-        color = 128 if mode == "L" else (128, 128, 128, 255)[:len(mode)]
+        from typing import Union
+
+        color: Union[int, tuple[int, int, int], tuple[int, int, int, int]]
+        if mode == "L":
+            color = 128
+        elif mode == "RGB":
+            color = (128, 128, 128)
+        else:  # RGBA
+            color = (128, 128, 128, 255)
         img = Image.new(mode, (50, 50), color=color)
         region = (0, 0, 50, 50)
-        
+
         perturbation = NoisePerturbation(intensity=10)
         result = perturbation.apply(img, region)
-        
+
         assert isinstance(result, Image.Image)
         assert result.mode == mode
         assert result.size == img.size

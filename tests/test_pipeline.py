@@ -136,6 +136,7 @@ class TestDatasetGenerator:
         assert len(run1_images) == len(run2_images) == 2
 
         # Images should be identical (deterministic)
+        # sourcery skip: no-loop-in-tests
         for img1_path, img2_path in zip(run1_images, run2_images):
             img1 = Image.open(img1_path)
             img2 = Image.open(img2_path)
@@ -163,16 +164,17 @@ class TestDatasetGenerator:
             gen.run(n_variants=1)
 
         # Test missing overlay images
-        import tempfile
         import os
+        import tempfile
 
         with tempfile.TemporaryDirectory() as bg_dir:
             with tempfile.TemporaryDirectory() as overlay_dir:
                 # Create a dummy background image so bg_dir is not empty
                 from PIL import Image
+
                 bg_img_path = os.path.join(bg_dir, "dummy_bg.jpg")
                 Image.new("RGB", (10, 10)).save(bg_img_path)
-                
+
                 # Don't create any overlay images, so overlay_dir is empty
 
                 with pytest.raises(ValueError, match="No overlay images found"):

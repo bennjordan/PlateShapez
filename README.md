@@ -221,3 +221,4 @@ These map to the same underlying tools and are aligned with CI and `scripts/chec
 ## CI
 
 GitHub Actions runs the same checks via `./scripts/check.sh`. Local pre-commit hooks use the same tools via uv to avoid version drift.
+
