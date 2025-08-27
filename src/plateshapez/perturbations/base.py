@@ -22,7 +22,13 @@ PERTURBATION_REGISTRY: dict[str, type[Perturbation]] = {}
 
 
 def register(perturbation_cls: type[Perturbation]) -> type[Perturbation]:
-    PERTURBATION_REGISTRY[perturbation_cls.name] = perturbation_cls
+    """Class decorator to register a perturbation by its unique name."""
+    name = getattr(perturbation_cls, "name", perturbation_cls.__name__).strip()
+    if not name:
+        raise ValueError("Perturbation class must define a non-empty 'name'.")
+    if name in PERTURBATION_REGISTRY:
+        raise ValueError(f"Duplicate perturbation name: {name}")
+    PERTURBATION_REGISTRY[name] = perturbation_cls
     return perturbation_cls
 
 

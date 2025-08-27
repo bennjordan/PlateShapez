@@ -5,7 +5,12 @@ description = "Dataset generator for adversarial plate overlay"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
 dependencies = [
+    "numpy>=2.2.6",
     "opencv-python>=4.12.0.88",
+    "pillow>=11.3.0",
+    "pyyaml>=6.0",
+    "rich>=14.1.0",
+    "typer>=0.16.1",
 ]
 
 [tool.uv]
@@ -14,6 +19,8 @@ package = true
 [project.scripts]
 # Run with: uv run dev <command>
 dev = "plateshapez.dev:main"
+# CLI entry point as specified in project spec
+advplate = "plateshapez.__main__:main"
 
 [dependency-groups]
 # Install with: uv sync --group dev
@@ -22,6 +29,7 @@ dev = [
   "mypy>=1.10",
   "pre-commit>=3.7",
   "types-pillow>=10.2.0.20240822",
+  "pytest>=8.4.1",
 ]
 
 [tool.ruff]
