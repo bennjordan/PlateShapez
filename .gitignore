@@ -1,0 +1,54 @@
+uv.lock
+.venv/
+outputs/
+!outputs/.gitkeep
+.env
+!.env.example
+
+
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Environments
+.venv/
+.env
+.env.*
+.venv*/
+
+# Packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+
+# Testing
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Type checker / Lint caches
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs & OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Misc
+.site/
