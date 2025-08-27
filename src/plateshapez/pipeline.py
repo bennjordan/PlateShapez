@@ -1,6 +1,4 @@
-import json
 import random
-import time
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -24,6 +22,7 @@ class DatasetGenerator:
         out_dir: str | Path,
         perturbations: list["DatasetGenerator.PerturbationConf"] | None = None,
         random_seed: int | None = None,
+        save_metadata: bool = True,
     ) -> None:
         self.bg_dir: Path = Path(bg_dir)
         self.ov_dir: Path = Path(overlay_dir)
@@ -34,6 +33,7 @@ class DatasetGenerator:
         self.label_dir.mkdir(parents=True, exist_ok=True)
         self.perturbations: list[DatasetGenerator.PerturbationConf] = perturbations or []
         self.random_seed: int | None = random_seed
+        self.save_metadata: bool = save_metadata
 
     def run(self, n_variants: int = 5) -> None:
         """Generate dataset with deterministic seeding."""
@@ -88,16 +88,18 @@ class DatasetGenerator:
                     # Save image and metadata
                     save_image(img, self.img_dir / fname)
                     
-                    metadata: dict[str, Any] = {
-                        "background": bg_path.name,
-                        "overlay": ov_path.name,
-                        "overlay_position": [bx, by],
-                        "overlay_size": [ow, oh],
-                        "perturbations": applied,
-                        "random_seed": self.random_seed,
-                        "variant_index": i,
-                    }
-                    save_metadata(metadata, self.label_dir / fname.replace(".png", ".json"))
+                    # Only save metadata if enabled in config
+                    if self.save_metadata:
+                        metadata: dict[str, Any] = {
+                            "background": bg_path.name,
+                            "overlay": ov_path.name,
+                            "overlay_position": [bx, by],
+                            "overlay_size": [ow, oh],
+                            "perturbations": applied,
+                            "random_seed": self.random_seed,
+                            "variant_index": i,
+                        }
+                        save_metadata(metadata, self.label_dir / fname.replace(".png", ".json"))
                     
                     total_images += 1
                     print(f"✓ Generated {fname} ({total_images} total)")

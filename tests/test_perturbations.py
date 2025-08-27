@@ -133,18 +133,24 @@ class TestWarpPerturbation:
 
     def test_warp_intensity_affects_distortion(self):
         """Test that warp intensity affects the amount of distortion."""
-        img = Image.new("RGB", (100, 100), color="blue")
-        region = (0, 0, 100, 100)
+        # Create an image with a pattern that will show warping effects
+        img = Image.new("RGB", (100, 100), color="white")
+        # Add a simple pattern
+        from PIL import ImageDraw
+        draw = ImageDraw.Draw(img)
+        for i in range(0, 100, 10):
+            draw.line([(i, 0), (i, 100)], fill="black", width=1)
+            draw.line([(0, i), (100, i)], fill="black", width=1)
         
+        region = (10, 10, 80, 80)  # Use a smaller region
         original_array = np.array(img)
         
-        # Low intensity warp
-        low_warp = WarpPerturbation(intensity=1.0)
+        # Test with global scope to ensure warping is visible
+        low_warp = WarpPerturbation(intensity=1.0, scope="global")
         low_result = low_warp.apply(img, region)
         low_array = np.array(low_result)
         
-        # High intensity warp
-        high_warp = WarpPerturbation(intensity=10.0)
+        high_warp = WarpPerturbation(intensity=10.0, scope="global")
         high_result = high_warp.apply(img, region)
         high_array = np.array(high_result)
         

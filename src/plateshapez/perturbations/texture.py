@@ -1,5 +1,4 @@
 import random
-from typing import Literal
 
 import numpy as np
 from PIL import Image, ImageDraw

@@ -65,6 +65,8 @@ def load_config(path: str | os.PathLike[str] | None = None, *, cli_overrides: di
         override_dict = {}
         if "n_variants" in cli_overrides and cli_overrides["n_variants"] is not None:
             override_dict.setdefault("dataset", {})["n_variants"] = cli_overrides["n_variants"]
+        if "seed" in cli_overrides and cli_overrides["seed"] is not None:
+            override_dict.setdefault("dataset", {})["random_seed"] = cli_overrides["seed"]
         if "verbose" in cli_overrides and cli_overrides["verbose"]:
             override_dict.setdefault("logging", {})["level"] = "DEBUG"
         if "debug" in cli_overrides and cli_overrides["debug"]:

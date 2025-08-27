@@ -1,6 +1,32 @@
 # Usage Examples
 
-This document provides examples of how to use plateshapez for generating adversarial license plate datasets.
+This document provides comprehensive examples of using plateshapez for generating adversarial license plate datasets.
+
+## Region vs Global Perturbation Scope
+
+All perturbations support a `scope` parameter that controls where the effect is applied:
+
+- **`scope: region`** (default): Apply perturbation only to the overlay region (license plate area)
+- **`scope: global`**: Apply perturbation to the entire image
+
+### Example Configuration
+
+```yaml
+perturbations:
+  - name: noise
+    params:
+      intensity: 25
+      scope: region  # Only affect the license plate area
+  - name: warp
+    params:
+      intensity: 5.0
+      scope: global  # Warp the entire image
+```
+
+### Research Considerations
+
+- **Region scope** is recommended for most adversarial research as it focuses perturbations on the target object
+- **Global scope** can be useful for testing robustness to environmental effects like camera distortion
 
 ## CLI Usage
 

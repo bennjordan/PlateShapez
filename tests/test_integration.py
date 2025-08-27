@@ -5,6 +5,9 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
+# Get repository root dynamically
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
 
 class TestCLIIntegration:
     """Integration tests for CLI commands."""
@@ -40,7 +43,7 @@ class TestCLIIntegration:
             ["uv", "run", "python", "-m", "plateshapez", "list"],
             capture_output=True,
             text=True,
-            cwd="/home/bakobi/repos/music/benjordan/plateshapez"
+            cwd=str(REPO_ROOT)
         )
         
         assert result.returncode == 0
@@ -58,7 +61,7 @@ class TestCLIIntegration:
             ["uv", "run", "python", "-m", "plateshapez", "version"],
             capture_output=True,
             text=True,
-            cwd="/home/bakobi/repos/music/benjordan/plateshapez"
+            cwd=str(REPO_ROOT)
         )
         
         assert result.returncode == 0
@@ -70,7 +73,7 @@ class TestCLIIntegration:
             ["uv", "run", "python", "-m", "plateshapez", "info"],
             capture_output=True,
             text=True,
-            cwd="/home/bakobi/repos/music/benjordan/plateshapez"
+            cwd=str(REPO_ROOT)
         )
         
         assert result.returncode == 0
@@ -89,7 +92,7 @@ class TestCLIIntegration:
             "uv", "run", "python", "-m", "plateshapez", "generate",
             "--dry-run",
             "--n_variants", "2"
-        ], capture_output=True, text=True, cwd="/home/bakobi/repos/music/benjordan/plateshapez")
+        ], capture_output=True, text=True, cwd=str(REPO_ROOT))
         
         assert result.returncode == 0
         
@@ -125,7 +128,7 @@ perturbations:
         result = subprocess.run([
             "uv", "run", "python", "-m", "plateshapez", "generate",
             "--config", str(config_file)
-        ], capture_output=True, text=True, cwd="/home/bakobi/repos/music/benjordan/plateshapez")
+        ], capture_output=True, text=True, cwd=str(REPO_ROOT))
         
         assert result.returncode == 0
         
@@ -153,7 +156,7 @@ perturbations:
         result = subprocess.run([
             "uv", "run", "python", "-m", "plateshapez", "generate",
             "--n_variants", "1"
-        ], capture_output=True, text=True, cwd="/home/bakobi/repos/music/benjordan/plateshapez")
+        ], capture_output=True, text=True, cwd=str(REPO_ROOT))
         
         # Should fail gracefully
         assert result.returncode == 1
@@ -176,7 +179,7 @@ dataset:
             "uv", "run", "python", "-m", "plateshapez", "generate",
             "--config", str(config_file),
             "--verbose"
-        ], capture_output=True, text=True, cwd="/home/bakobi/repos/music/benjordan/plateshapez")
+        ], capture_output=True, text=True, cwd=str(REPO_ROOT))
         
         assert result.returncode == 0
         
