@@ -29,11 +29,11 @@ def iter_images(directory: str | Path, extensions: list[str] | None = None) -> I
     """Iterate over image files in a directory."""
     if extensions is None:
         extensions = [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]
-    
+
     directory = Path(directory)
     if not directory.exists():
         return
-    
+
     for ext in extensions:
         yield from directory.glob(f"*{ext}")
         yield from directory.glob(f"*{ext.upper()}")

@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
 
-from plateshapez.pipeline import DatasetGenerator
 from plateshapez.config import load_config
 from plateshapez.perturbations.base import PERTURBATION_REGISTRY
+from plateshapez.pipeline import DatasetGenerator
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -80,7 +79,9 @@ def list() -> None:  # noqa: A001 - CLI command name
 @app.command()
 def info(
     config: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config file"),
-    n_variants: Optional[int] = typer.Option(None, "--n_variants", help="Override number of variants"),
+    n_variants: Optional[int] = typer.Option(
+        None, "--n_variants", help="Override number of variants"
+    ),
     format: str = typer.Option("json", "--as", help="Output format: json|yaml"),
 ) -> None:
     """Show merged configuration (defaults < file < CLI)."""
@@ -88,6 +89,7 @@ def info(
         cfg = load_config(str(config) if config else None, cli_overrides={"n_variants": n_variants})
         if format == "yaml":
             import yaml
+
             output = yaml.safe_dump(cfg, default_flow_style=False)
         else:
             output = json.dumps(cfg, indent=2)
@@ -101,7 +103,9 @@ def info(
 @app.command()
 def generate(
     config: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config file"),
-    n_variants: Optional[int] = typer.Option(None, "--n_variants", help="Override number of variants"),
+    n_variants: Optional[int] = typer.Option(
+        None, "--n_variants", help="Override number of variants"
+    ),
     seed: Optional[int] = typer.Option(None, "--seed", help="Random seed for reproducible results"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
     debug: bool = typer.Option(False, "--debug", help="Debug logging"),
@@ -134,7 +138,13 @@ def generate(
                 str(cfg["dataset"]["n_variants"]),
             )
             console.print(table)
-            console.print(Panel.fit(json.dumps(cfg.get("perturbations", []), indent=2), title="Perturbations", border_style="blue"))
+            console.print(
+                Panel.fit(
+                    json.dumps(cfg.get("perturbations", []), indent=2),
+                    title="Perturbations",
+                    border_style="blue",
+                )
+            )
             raise typer.Exit(0)
 
         # Create generator after dry-run check
@@ -149,14 +159,18 @@ def generate(
 
         if debug:
             console.print("[dim]Starting generation with full config:[/]")
-            console.print(Panel.fit(json.dumps(cfg, indent=2), title="Debug Config", border_style="red"))
+            console.print(
+                Panel.fit(json.dumps(cfg, indent=2), title="Debug Config", border_style="red")
+            )
 
         gen.run(n_variants=int(cfg["dataset"]["n_variants"]))
         console.print("[bold green]✓ Dataset generated successfully![/]")
-        
+
     except FileNotFoundError as e:
         console.print(f"[red]File not found: {e}[/]")
-        console.print("[yellow]Tip: Check that background and overlay directories exist and contain images[/]")
+        console.print(
+            "[yellow]Tip: Check that background and overlay directories exist and contain images[/]"
+        )
         _print_command_help("generate")
         raise typer.Exit(1)
     except ValueError as e:

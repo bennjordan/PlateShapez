@@ -11,6 +11,7 @@ dependencies = [
     "pyyaml>=6.0",
     "rich>=14.1.0",
     "typer>=0.16.1",
+    "types-pyyaml>=6.0.12.20250822",
 ]
 
 [tool.uv]
@@ -59,3 +60,6 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 pretty = true
+mypy_path = "src"
+namespace_packages = true
+explicit_package_bases = true

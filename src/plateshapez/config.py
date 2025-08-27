@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import json
+import os
 from pathlib import Path
 from typing import Any
 
-import json
-import os
-
 try:
-    import yaml  # type: ignore
+    import yaml
 except Exception as e:  # pragma: no cover - handled by dependency install
     raise RuntimeError("Missing dependency 'pyyaml'. Please run: uv add pyyaml") from e
 
@@ -52,7 +51,9 @@ def _load_file(path: Path) -> dict[str, Any]:
     raise ValueError(f"Unsupported config format: {path.suffix}")
 
 
-def load_config(path: str | os.PathLike[str] | None = None, *, cli_overrides: dict[str, Any] | None = None) -> dict[str, Any]:
+def load_config(
+    path: str | os.PathLike[str] | None = None, *, cli_overrides: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Merge config with precedence: DEFAULTS < file (if provided) < CLI overrides.
     """
@@ -62,7 +63,7 @@ def load_config(path: str | os.PathLike[str] | None = None, *, cli_overrides: di
         cfg = _deep_merge(cfg, file_cfg)
     if cli_overrides:
         # Handle CLI overrides more comprehensively
-        override_dict = {}
+        override_dict: dict[str, dict[str, Any]] = {}
         if "n_variants" in cli_overrides and cli_overrides["n_variants"] is not None:
             override_dict.setdefault("dataset", {})["n_variants"] = cli_overrides["n_variants"]
         if "seed" in cli_overrides and cli_overrides["seed"] is not None:

@@ -42,15 +42,11 @@ class DatasetGenerator:
             random.seed(self.random_seed)
             np.random.seed(self.random_seed)
             # Also seed PIL's internal random for consistent image operations
-            try:
-                from PIL import ImageFilter
-                # PIL uses Python's random module internally
-            except ImportError:
-                pass
+            # PIL uses Python's random module internally
 
         backgrounds = list(iter_backgrounds(self.bg_dir))
         overlays = list(iter_overlays(self.ov_dir))
-        
+
         if not backgrounds:
             raise ValueError(f"No background images found in {self.bg_dir}")
         if not overlays:
@@ -76,7 +72,7 @@ class DatasetGenerator:
                         name = perturbation_conf["name"]
                         if name not in PERTURBATION_REGISTRY:
                             raise ValueError(f"Unknown perturbation: {name}")
-                        
+
                         cls = PERTURBATION_REGISTRY[name]
                         pert = cls(**perturbation_conf.get("params", {}))
                         img = pert.apply(img, (bx, by, ow, oh))
@@ -84,10 +80,10 @@ class DatasetGenerator:
 
                     # Generate deterministic filename
                     fname = f"{bg_path.stem}_{ov_path.stem}_{i:03d}.png"
-                    
+
                     # Save image and metadata
                     save_image(img, self.img_dir / fname)
-                    
+
                     # Only save metadata if enabled in config
                     if self.save_metadata:
                         metadata: dict[str, Any] = {
@@ -100,8 +96,8 @@ class DatasetGenerator:
                             "variant_index": i,
                         }
                         save_metadata(metadata, self.label_dir / fname.replace(".png", ".json"))
-                    
+
                     total_images += 1
                     print(f"✓ Generated {fname} ({total_images} total)")
-        
+
         print(f"\n🎉 Dataset generation complete! Generated {total_images} images.")

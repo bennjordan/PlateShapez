@@ -5,9 +5,7 @@ from typing import Tuple
 from PIL import Image
 
 
-def calculate_center_position(
-    background: Image.Image, overlay: Image.Image
-) -> Tuple[int, int]:
+def calculate_center_position(background: Image.Image, overlay: Image.Image) -> Tuple[int, int]:
     """Calculate position to center overlay on background."""
     bg_w, bg_h = background.size
     ov_w, ov_h = overlay.size
@@ -17,20 +15,18 @@ def calculate_center_position(
 
 
 def paste_overlay(
-    background: Image.Image, 
-    overlay: Image.Image, 
-    position: Tuple[int, int] | None = None
+    background: Image.Image, overlay: Image.Image, position: Tuple[int, int] | None = None
 ) -> Image.Image:
     """Paste overlay onto background at specified position (or center if None)."""
     result = background.copy()
-    
+
     if position is None:
         position = calculate_center_position(background, overlay)
-    
+
     # Ensure overlay has alpha channel for proper compositing
     if overlay.mode != "RGBA":
         overlay = overlay.convert("RGBA")
-    
+
     result.paste(overlay, position, overlay)
     return result
 
