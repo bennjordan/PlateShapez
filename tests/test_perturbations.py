@@ -116,6 +116,8 @@ class TestNoisePerturbation:
         # All values should be in valid range [0, 255]
         assert np.all(result_array >= 0)
         assert np.all(result_array <= 255)
+        # Ensure output image format is correct (uint8)
+        assert result_array.dtype == np.uint8
 
 
 class TestWarpPerturbation:
