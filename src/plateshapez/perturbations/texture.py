@@ -33,11 +33,12 @@ class TexturePerturbation(Perturbation):
         x, y, w, h = region
         arr = np.array(img)
 
-        # Generate grain noise
-        grain = np.random.normal(0, intensity * 255, (h, w, 3))
-
         # Apply only to the overlay region
         region_slice = arr[y : y + h, x : x + w]
+
+        # Generate grain noise with same shape as region slice
+        grain = np.random.normal(0, intensity * 255, region_slice.shape)
+
         region_slice = np.clip(region_slice.astype(np.float32) + grain, 0, 255).astype(np.uint8)
         arr[y : y + h, x : x + w] = region_slice
 
