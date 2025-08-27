@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure src/ is on the PYTHONPATH so `python -m plateshapez.dev` works without install
+export PYTHONPATH="${PYTHONPATH:-}:$(pwd)/src"
+
+# Delegate to the dev CLI
+exec uv run python -m plateshapez.dev "$@"

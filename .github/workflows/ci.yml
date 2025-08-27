@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ${{ github.workspace }}
+
 jobs:
   lint-and-typecheck:
     # Use self-hosted runner pool with label 'plateshapez'
@@ -12,16 +17,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug workspace
+        run: |
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          pwd
+          ls -la
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install uv
-        shell: bash
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+          if ! command -v uv >/dev/null 2>&1; then
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+          fi
 
       - name: Cache uv and virtualenv
         uses: actions/cache@v4
@@ -34,13 +46,13 @@ jobs:
             ${{ runner.os }}-py3.12-uv-
 
       - name: Sync dev dependencies
-        shell: bash
         run: |
+          echo "Current dir: $(pwd)"
+          test -f pyproject.toml && echo "Found pyproject.toml" || (echo "pyproject.toml missing" && ls -la && exit 1)
           uv --version
           uv sync --group dev
 
       - name: Run formatting, linting, type checks
-        shell: bash
         run: |
           chmod +x scripts/check.sh
           ./scripts/check.sh
