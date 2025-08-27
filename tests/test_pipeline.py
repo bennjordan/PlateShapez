@@ -167,19 +167,22 @@ class TestDatasetGenerator:
         import os
 
         with tempfile.TemporaryDirectory() as bg_dir:
-            # Create a dummy background image so bg_dir is not empty
-            from PIL import Image
-            img_path = os.path.join(bg_dir, "dummy_bg.png")
-            Image.new("RGB", (10, 10)).save(img_path)
+            with tempfile.TemporaryDirectory() as overlay_dir:
+                # Create a dummy background image so bg_dir is not empty
+                from PIL import Image
+                bg_img_path = os.path.join(bg_dir, "dummy_bg.jpg")
+                Image.new("RGB", (10, 10)).save(bg_img_path)
+                
+                # Don't create any overlay images, so overlay_dir is empty
 
-            with pytest.raises(ValueError, match="No overlay images found"):
-                gen = DatasetGenerator(
-                    bg_dir=bg_dir,
-                    overlay_dir="/nonexistent/overlay",
-                    out_dir="/tmp/test_out",
-                    random_seed=42,
-                )
-                gen.run(n_variants=1)
+                with pytest.raises(ValueError, match="No overlay images found"):
+                    gen = DatasetGenerator(
+                        bg_dir=bg_dir,
+                        overlay_dir=overlay_dir,
+                        out_dir="/tmp/test_out",
+                        random_seed=42,
+                    )
+                    gen.run(n_variants=1)
 
     def test_unknown_perturbation_raises_error(self, temp_dirs):
         """Test that unknown perturbation names raise ValueError."""

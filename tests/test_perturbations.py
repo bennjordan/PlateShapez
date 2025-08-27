@@ -162,23 +162,50 @@ class TestWarpPerturbation:
         assert not np.array_equal(original_array, low_array)
         assert not np.array_equal(original_array, high_array)
 
+    def test_warp_region_scope(self):
+        """Test warp perturbation with region scope for full code coverage."""
+        # Create an image with a clear pattern to see warping effects
+        img = Image.new("RGB", (100, 100), color="white")
+        from PIL import ImageDraw
+        
+        draw = ImageDraw.Draw(img)
+        # Add a grid pattern
+        for i in range(0, 100, 10):
+            draw.line([(i, 0), (i, 100)], fill="black", width=1)
+            draw.line([(0, i), (100, i)], fill="black", width=1)
+        
+        region = (20, 20, 40, 40)  # Small region in the center
+        original_array = np.array(img)
+        
+        # Test region scope - should only affect the specified region
+        region_warp = WarpPerturbation(intensity=5.0, scope="region")
+        region_result = region_warp.apply(img, region)
+        region_array = np.array(region_result)
+        
+        # Should be different from original
+        assert not np.array_equal(original_array, region_array)
+        
+        # Check that areas outside the region are unchanged
+        # Top-left corner (outside region)
+        assert np.array_equal(original_array[0:10, 0:10], region_array[0:10, 0:10])
+        # Bottom-right corner (outside region)
+        assert np.array_equal(original_array[90:100, 90:100], region_array[90:100, 90:100])
+
 
 class TestTexturePerturbation:
     """Test texture perturbation correctness."""
 
-    def test_texture_types_work(self):
+    @pytest.mark.parametrize("texture_type", ["grain", "scratches", "dirt"])
+    def test_texture_types_work(self, texture_type):
         """Test that different texture types can be applied."""
         img = Image.new("RGB", (100, 100), color="white")
         region = (10, 10, 80, 80)
 
-        texture_types = ["grain", "scratches", "dirt"]
+        perturbation = TexturePerturbation(type=texture_type, intensity=0.5)
+        result = perturbation.apply(img, region)
 
-        for texture_type in texture_types:
-            perturbation = TexturePerturbation(type=texture_type, intensity=0.5)
-            result = perturbation.apply(img, region)
-
-            assert isinstance(result, Image.Image)
-            assert result.size == img.size
+        assert isinstance(result, Image.Image)
+        assert result.size == img.size
 
     def test_invalid_texture_type_returns_original(self):
         """Test that invalid texture types return the original image without errors."""
@@ -215,3 +242,38 @@ class TestTexturePerturbation:
 
         # High intensity should create more difference
         assert high_diff > low_diff
+
+
+class TestPerturbationChannelCompatibility:
+    """Test perturbations work with different image channel counts."""
+    
+    @pytest.mark.parametrize("mode,channels", [
+        ("L", 1),    # Grayscale
+        ("RGB", 3),  # RGB
+        ("RGBA", 4), # RGBA
+    ])
+    def test_texture_grain_channel_compatibility(self, mode, channels):
+        """Test grain texture works with different channel counts."""
+        img = Image.new(mode, (50, 50), color=128 if mode == "L" else (128, 128, 128, 255)[:channels])
+        region = (10, 10, 30, 30)
+        
+        perturbation = TexturePerturbation(type="grain", intensity=0.5)
+        result = perturbation.apply(img, region)
+        
+        assert isinstance(result, Image.Image)
+        assert result.mode == mode
+        assert result.size == img.size
+    
+    @pytest.mark.parametrize("mode", ["L", "RGB", "RGBA"])
+    def test_noise_channel_compatibility(self, mode):
+        """Test noise perturbation works with different channel counts."""
+        color = 128 if mode == "L" else (128, 128, 128, 255)[:len(mode)]
+        img = Image.new(mode, (50, 50), color=color)
+        region = (0, 0, 50, 50)
+        
+        perturbation = NoisePerturbation(intensity=10)
+        result = perturbation.apply(img, region)
+        
+        assert isinstance(result, Image.Image)
+        assert result.mode == mode
+        assert result.size == img.size
