@@ -5,7 +5,6 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-import click
 import typer
 from rich.console import Console
 from rich.table import Table

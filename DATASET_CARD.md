@@ -1,5 +1,26 @@
 # Dataset Card: Adversarial Plate Overlay Dataset
 
+## Reproducibility
+
+The dataset generation process is deterministic when using the same:
+- Random seed (`random_seed` in config or `--seed` CLI option)
+- Input images (backgrounds and overlays)
+- Perturbation parameters
+- Software version
+
+### Reproducible Generation
+
+```bash
+# Generate identical datasets with same seed
+advplate generate --seed 42 --config my_config.yaml
+
+# Or specify in config file
+# dataset:
+#   random_seed: 42
+```
+
+All perturbations respect the random seed for consistent results across runs.
+
 ## Purpose
 This dataset generator is designed for **research into adversarial robustness** of Optical Character Recognition (OCR) and Automated License Plate Recognition (ALPR) models.  
 The goal is **not to conceal license plates in real-world use**, but to provide controlled, reproducible data for studying:

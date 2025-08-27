@@ -38,14 +38,29 @@ uv pip install -e .
 
 2. **Generate dataset:**
    ```bash
-   # Using CLI
-   advplate generate --n_variants 10
+   # Generate dataset with defaults
+   advplate generate
 
-   # With custom config
-   advplate generate --config config.yaml
+   # Generate with custom config and seed for reproducibility
+   advplate generate --config my_config.yaml --seed 42
 
-   # Preview without generating files
+   # Preview generation plan
    advplate generate --dry-run
+
+   # List available perturbations
+   advplate list
+
+   # Show current configuration
+   advplate info
+
+   # Show configuration in YAML format
+   advplate info --as yaml
+
+   # Print example configuration
+   advplate examples
+
+   # Show version
+   advplate version
    ```
 
 3. **Explore options:**
@@ -116,10 +131,32 @@ logging:
 
 ### Available Perturbations
 
-- **shapes**: Random rectangles, ellipses, triangles
-- **noise**: Add Gaussian or salt noise  
-- **warp**: Mild geometric warping
+- **shapes**: Random rectangles, ellipses, triangles (supports `scope: region|global`)
+- **noise**: Add Gaussian or salt noise (supports `scope: region|global`)
+- **warp**: Mild geometric warping (supports `scope: region|global`)
 - **texture**: Overlay texture maps (grain, scratches, dirt)
+
+### CLI Reference
+
+**Generation Commands:**
+- `advplate generate` - Generate dataset with defaults
+- `advplate generate --config file.yaml --seed 42` - Generate with config and seed
+- `advplate generate --dry-run` - Preview without creating files
+
+**Information Commands:**
+- `advplate list` - List available perturbations
+- `advplate info` - Show current configuration (JSON)
+- `advplate info --as yaml` - Show configuration in YAML format
+- `advplate examples` - Print example configuration
+- `advplate version` - Show version
+
+**CLI Options:**
+- `--config PATH` - Path to YAML/JSON configuration file
+- `--n_variants INT` - Override number of variants per image pair
+- `--seed INT` - Random seed for reproducible results
+- `--verbose` - Enable verbose logging
+- `--debug` - Enable debug logging with full stack traces
+- `--dry-run` - Preview generation plan without creating files
 
 ## 📁 Output Structure
 

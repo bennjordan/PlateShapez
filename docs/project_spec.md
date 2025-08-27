@@ -85,17 +85,15 @@ Command entrypoint: `advplate`
 ```bash
 Usage: advplate [OPTIONS] COMMAND [ARGS]...
 
-Options:
-  -c, --config PATH   Path to config file
-  -v, --verbose       Verbose logging
-  -h, --help          Show this message and exit
+### CLI Options
 
-Commands:
-  generate   Generate a dataset
-  list       List available perturbations
-  info       Show current configuration
-  version    Show version info
-```
+- `--config PATH` - Path to YAML/JSON configuration file
+- `--n_variants INT` - Override number of variants per image pair
+- `--seed INT` - Random seed for reproducible results (maps to `dataset.random_seed`)
+- `--verbose` - Enable verbose logging
+- `--debug` - Enable debug logging with full stack traces
+- `--dry-run` - Preview generation plan without creating files
+- `--as FORMAT` - Output format for info command (json|yaml) info
 
 #### `generate`
 
