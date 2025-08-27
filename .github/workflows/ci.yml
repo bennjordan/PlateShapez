@@ -7,18 +7,14 @@ on:
 jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
 
       - name: Install uv
         shell: bash
@@ -32,9 +28,9 @@ jobs:
           path: |
             ~/.cache/uv
             .venv
-          key: ${{ runner.os }}-py${{ matrix.python-version }}-uv-${{ hashFiles('pyproject.toml') }}
+          key: ${{ runner.os }}-py3.12-uv-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-py${{ matrix.python-version }}-uv-
+            ${{ runner.os }}-py3.12-uv-
 
       - name: Sync dev dependencies
         shell: bash
