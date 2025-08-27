@@ -23,6 +23,7 @@ class DatasetGenerator:
         perturbations: list["DatasetGenerator.PerturbationConf"] | None = None,
         random_seed: int | None = None,
         save_metadata: bool = True,
+        verbose: bool = False,
     ) -> None:
         self.bg_dir: Path = Path(bg_dir)
         self.ov_dir: Path = Path(overlay_dir)
@@ -34,6 +35,7 @@ class DatasetGenerator:
         self.perturbations: list[DatasetGenerator.PerturbationConf] = perturbations or []
         self.random_seed: int | None = random_seed
         self.save_metadata: bool = save_metadata
+        self.verbose: bool = verbose
 
     def run(self, n_variants: int = 5) -> None:
         """Generate dataset with deterministic seeding."""
@@ -54,9 +56,20 @@ class DatasetGenerator:
 
         total_images = 0
         for bg_path in backgrounds:
-            bg = ensure_rgb(Image.open(bg_path))
+            try:
+                bg = ensure_rgb(Image.open(bg_path))
+            except (IOError, OSError, ValueError) as e:
+                if self.verbose:
+                    print(f"Warning: Could not load background {bg_path}: {e}")
+                continue
+
             for ov_path in overlays:
-                overlay = ensure_rgba(Image.open(ov_path))
+                try:
+                    overlay = ensure_rgba(Image.open(ov_path))
+                except (IOError, OSError, ValueError) as e:
+                    if self.verbose:
+                        print(f"Warning: Could not load overlay {ov_path}: {e}")
+                    continue
                 position = calculate_center_position(bg, overlay)
                 ow, oh = overlay.size
                 bx, by = position
@@ -98,6 +111,9 @@ class DatasetGenerator:
                         save_metadata(metadata, self.label_dir / fname.replace(".png", ".json"))
 
                     total_images += 1
-                    print(f"✓ Generated {fname} ({total_images} total)")
+                    if self.verbose:
+                        print(f"✓ Generated {fname} ({total_images} total)")
+                    elif total_images % 100 == 0:
+                        print(f"✓ Generated {total_images} images so far...")
 
         print(f"\n🎉 Dataset generation complete! Generated {total_images} images.")

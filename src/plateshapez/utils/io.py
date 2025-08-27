@@ -7,9 +7,13 @@ from typing import Iterator
 from PIL import Image
 
 
-def load_image(path: str | Path) -> Image.Image:
-    """Load an image from file path."""
-    return Image.open(path)
+def load_image(path: str | Path) -> Image.Image | None:
+    """Load an image from file path. Returns None if file cannot be read."""
+    try:
+        return Image.open(path)
+    except (IOError, OSError, ValueError) as e:
+        print(f"Warning: Could not load image {path}: {e}")
+        return None
 
 
 def save_image(image: Image.Image, path: str | Path) -> None:

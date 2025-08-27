@@ -101,7 +101,7 @@ class TestDatasetGenerator:
         assert metadata["random_seed"] == 42
         assert metadata["variant_index"] == 0
         assert len(metadata["perturbations"]) == 1
-        assert metadata["perturbations"][0]["type"] == "shapes"
+        assert metadata["perturbations"][0]["type"] == "noise"
 
     def test_deterministic_behavior_with_seed(self, temp_dirs):
         """Test that same seed produces identical results."""

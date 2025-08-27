@@ -54,8 +54,8 @@ class TexturePerturbation(Perturbation):
         num_scratches = int(intensity * 20)
         for _ in range(num_scratches):
             # Random scratch within region
-            sx1 = random.randint(x, x + w)
-            sy1 = random.randint(y, y + h)
+            sx1 = random.randint(x, x + w - 1)
+            sy1 = random.randint(y, y + h - 1)
             sx2 = sx1 + random.randint(-20, 20)
             sy2 = sy1 + random.randint(-20, 20)
 
