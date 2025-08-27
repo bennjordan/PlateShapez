@@ -6,7 +6,8 @@ on:
 
 jobs:
   lint-and-typecheck:
-    runs-on: ubuntu-latest
+    # Use self-hosted runner pool with label 'plateshapez'
+    runs-on: [self-hosted, plateshapez]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
