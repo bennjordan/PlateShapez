@@ -47,8 +47,10 @@ class TexturePerturbation(Perturbation):
         self, img: Image.Image, region: tuple[int, int, int, int], intensity: float
     ) -> Image.Image:
         """Apply scratch texture."""
+        # Copy the input image to avoid in-place modification
+        img_copy = img.copy()
         x, y, w, h = region
-        draw = ImageDraw.Draw(img, "RGBA")
+        draw = ImageDraw.Draw(img_copy, "RGBA")
 
         num_scratches = int(intensity * 20)
         for _ in range(num_scratches):
@@ -66,7 +68,7 @@ class TexturePerturbation(Perturbation):
             alpha = int(intensity * 128)
             draw.line([(sx1, sy1), (sx2, sy2)], fill=(0, 0, 0, alpha), width=1)
 
-        return img
+        return img_copy
 
     def _apply_dirt(
         self, img: Image.Image, region: tuple[int, int, int, int], intensity: float
