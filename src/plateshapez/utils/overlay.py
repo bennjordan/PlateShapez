@@ -49,6 +49,4 @@ def ensure_rgb(image: Image.Image) -> Image.Image:
 
 def ensure_rgba(image: Image.Image) -> Image.Image:
     """Ensure image is in RGBA mode."""
-    if image.mode != "RGBA":
-        return image.convert("RGBA")
-    return image
+    return image.convert("RGBA") if image.mode != "RGBA" else image
