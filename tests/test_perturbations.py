@@ -116,6 +116,8 @@ class TestNoisePerturbation:
         # All values should be in valid range [0, 255]
         assert np.all(result_array >= 0)
         assert np.all(result_array <= 255)
+        # Ensure output image format is correct (uint8)
+        assert result_array.dtype == np.uint8
 
 
 class TestWarpPerturbation:
@@ -177,6 +179,18 @@ class TestTexturePerturbation:
 
             assert isinstance(result, Image.Image)
             assert result.size == img.size
+
+    def test_invalid_texture_type_returns_original(self):
+        """Test that invalid texture types return the original image without errors."""
+        img = Image.new("RGB", (100, 100), color="white")
+        region = (10, 10, 80, 80)
+        invalid_texture_type = "unknown_texture"
+        perturbation = TexturePerturbation(type=invalid_texture_type, intensity=0.5)
+        result = perturbation.apply(img, region)
+        # Should not raise, and should return an image identical to the original
+        assert isinstance(result, Image.Image)
+        assert result.size == img.size
+        assert np.array_equal(np.array(result), np.array(img))
 
     def test_texture_intensity_affects_result(self):
         """Test that texture intensity affects the result."""

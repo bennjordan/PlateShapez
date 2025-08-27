@@ -249,7 +249,7 @@ def main() -> None:
     except Exception as e:  # Show help on error per spec
         console.print(f"[red]Error: {e}[/]")
         _print_app_help()
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 if __name__ == "__main__":
