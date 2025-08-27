@@ -7,6 +7,12 @@ from .base import Perturbation, register
 
 @register
 class ShapesPerturbation(Perturbation):
+    """Random geometric shapes perturbation for adversarial occlusion.
+
+    Adds random rectangles, ellipses, and triangles to simulate physical occlusion
+    or adversarial patches on license plates.
+    """
+
     name = "shapes"
 
     def apply(self, img: Image.Image, region: tuple[int, int, int, int]) -> Image.Image:

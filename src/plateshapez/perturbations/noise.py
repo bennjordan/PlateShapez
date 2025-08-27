@@ -6,6 +6,12 @@ from .base import Perturbation, register
 
 @register
 class NoisePerturbation(Perturbation):
+    """Gaussian noise perturbation for adversarial robustness testing.
+
+    Adds random noise to simulate camera sensor noise, compression artifacts,
+    or environmental interference.
+    """
+
     name = "noise"
 
     def apply(self, img: Image.Image, region: tuple[int, int, int, int]) -> Image.Image:

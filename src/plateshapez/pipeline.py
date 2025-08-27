@@ -11,6 +11,13 @@ from plateshapez.utils.overlay import calculate_center_position, ensure_rgb, ens
 
 
 class DatasetGenerator:
+    """Main class for generating adversarial license plate datasets.
+
+    Orchestrates the process of combining background vehicle images with license plate
+    overlays and applying configurable perturbations to create training datasets for
+    adversarial robustness research.
+    """
+
     class PerturbationConf(TypedDict, total=False):
         name: str
         params: dict[str, Any]
@@ -25,6 +32,17 @@ class DatasetGenerator:
         save_metadata: bool = True,
         verbose: bool = False,
     ) -> None:
+        """Initialize the dataset generator.
+
+        Args:
+            bg_dir: Directory containing background vehicle images (JPG)
+            overlay_dir: Directory containing license plate overlays (PNG with alpha)
+            out_dir: Output directory for generated dataset
+            perturbations: List of perturbation configurations to apply
+            random_seed: Random seed for reproducible generation
+            save_metadata: Whether to save JSON metadata files
+            verbose: Enable verbose logging output
+        """
         self.bg_dir: Path = Path(bg_dir)
         self.ov_dir: Path = Path(overlay_dir)
         self.out_dir: Path = Path(out_dir)
