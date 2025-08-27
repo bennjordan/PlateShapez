@@ -4,7 +4,9 @@ outputs/
 !outputs/.gitkeep
 .env
 !.env.example
-
+diff.md
+manifest.md
+manifest2.md
 
 
 # Python
