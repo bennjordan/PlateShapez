@@ -269,7 +269,7 @@ def main():
         print("   python scripts/cleanup.py")
         sys.exit(0)
 
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as e:
         print("\n\n⏹️  Demo interrupted by user")
         raise KeyboardInterrupt("User interrupted process") from e
     except Exception as e:

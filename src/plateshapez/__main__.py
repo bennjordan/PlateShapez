@@ -264,7 +264,9 @@ def demo(
                 console.print("[yellow]🧹 Cleaning up demo files...[/]")
                 cleanup_script = Path("scripts/cleanup.py")
                 if cleanup_script.exists():
-                    subprocess.run([sys.executable, str(cleanup_script), "--confirm"], check=False, shell=False)
+                    subprocess.run(
+                        [sys.executable, str(cleanup_script), "--confirm"], check=False, shell=False
+                    )
                     console.print("[green]✓ Cleanup complete[/]")
             else:
                 console.print(
