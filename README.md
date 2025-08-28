@@ -46,30 +46,18 @@ uv pip install -e .
 
    # Preview generation plan
    advplate generate --dry-run
-
-   # List available perturbations
-   advplate list
-
-   # Show current configuration
-   advplate info
-
-   # Show configuration in YAML format
-   advplate info --as yaml
-
-   # Print example configuration
-   advplate examples
-
-   # Show version
-   advplate version
    ```
 
-3. **Explore options:**
+3. **Explore available options:**
    ```bash
    # List available perturbations
    advplate list
 
    # Show current configuration
-   advplate info
+   advplate info --as yaml
+
+   # Print example configuration
+   advplate examples
 
    # Show version
    advplate version
@@ -87,9 +75,11 @@ gen = DatasetGenerator(
     out_dir="dataset",
     perturbations=[
         {"name": "shapes", "params": {"num_shapes": 20}},
-        {"name": "noise", "params": {"intensity": 25}}
+        {"name": "noise", "params": {"intensity": 25}},
+        {"name": "texture", "params": {"type": "grain", "intensity": 0.3}}
     ],
-    random_seed=1337
+    random_seed=1337,
+    verbose=True  # Enable verbose output
 )
 gen.run(n_variants=10)
 ```
@@ -132,9 +122,13 @@ logging:
 ### Available Perturbations
 
 - **shapes**: Random rectangles, ellipses, triangles (supports `scope: region|global`)
-- **noise**: Add Gaussian or salt noise (supports `scope: region|global`)
+- **noise**: Add Gaussian noise (supports `scope: region|global`)
 - **warp**: Mild geometric warping (supports `scope: region|global`)
 - **texture**: Overlay texture maps (grain, scratches, dirt)
+
+**Scope Parameter**: All perturbations support a `scope` parameter:
+- `scope: region` (default): Apply only to the license plate area
+- `scope: global`: Apply to the entire image
 
 ### CLI Reference
 
@@ -179,6 +173,7 @@ Each JSON file contains:
 - Overlay position and size
 - Applied perturbations with parameters
 - Random seed for reproducibility
+- Variant index for tracking multiple versions
 
 ## 🔧 Development (npm-like commands)
 
@@ -217,6 +212,31 @@ These map to the same underlying tools and are aligned with CI and `scripts/chec
 - `check`: runs format, lint, and type in sequence (same as `scripts/check.sh`)
 - `hooks install`: `pre-commit install --hook-type pre-commit --hook-type pre-push`
 - `pre-commit`: `pre-commit run --all-files`
+
+## 📚 Additional Documentation
+
+- **[Project Specification](docs/project_spec.md)** - Detailed technical requirements and implementation notes
+- **[Usage Examples](docs/usage_examples.md)** - Comprehensive examples for CLI and Python API
+- **[Dataset Card](DATASET_CARD.md)** - Ethical guidelines and responsible use information
+- **[Code Examples](examples/)** - Working Python scripts demonstrating API usage
+
+## 🔬 Research & Ethics
+
+This tool is designed for **research into adversarial robustness** of OCR and ALPR systems. Please review the [Dataset Card](DATASET_CARD.md) for ethical guidelines and responsible use practices.
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+# Run all tests
+uv run pytest
+
+# Run with coverage
+uv run pytest --cov=plateshapez
+
+# Run specific test file
+uv run pytest tests/test_pipeline.py
+```
 
 ## CI
 

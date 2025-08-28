@@ -7,7 +7,12 @@ outputs/
 diff.md
 manifest.md
 manifest2.md
+walk.py
 
+# Dataset
+dataset/
+!dataset/images/.gitkeep
+!dataset/labels/.gitkeep
 
 # Python
 __pycache__/
