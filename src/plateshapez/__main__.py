@@ -254,8 +254,8 @@ def demo(
     console.print("[dim]This will create test images and demonstrate the full workflow[/]")
 
     try:
-        # Run the demo script
-        result = subprocess.run([sys.executable, str(demo_script)], check=False)
+        # Run the demo script - using list format for security
+        result = subprocess.run([sys.executable, str(demo_script)], check=False, shell=False)
 
         if result.returncode == 0:
             console.print("[bold green]✅ Demo completed successfully![/]")
@@ -264,7 +264,7 @@ def demo(
                 console.print("[yellow]🧹 Cleaning up demo files...[/]")
                 cleanup_script = Path("scripts/cleanup.py")
                 if cleanup_script.exists():
-                    subprocess.run([sys.executable, str(cleanup_script), "--confirm"], check=False)
+                    subprocess.run([sys.executable, str(cleanup_script), "--confirm"], check=False, shell=False)
                     console.print("[green]✓ Cleanup complete[/]")
             else:
                 console.print(
