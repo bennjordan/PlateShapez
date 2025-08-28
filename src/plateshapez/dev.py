@@ -94,7 +94,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Convenience alias: `dev pre-commit` => run hooks on all files
     sub.add_parser("pre-commit", help="Alias of hooks run (pre-commit run --all-files)")
-    
+
     # Cleanup commands
     cleanup = sub.add_parser("cleanup", help="Reset project to fresh state")
     cleanup_sub = cleanup.add_subparsers(dest="cleanup_cmd", required=False)
@@ -122,7 +122,7 @@ def main(argv: List[str] | None = None) -> int:
         if args.hooks_cmd == "run":
             return cmd_hooks_run()
     if args.command == "cleanup":
-        if hasattr(args, 'cleanup_cmd') and args.cleanup_cmd == "all":
+        if hasattr(args, "cleanup_cmd") and args.cleanup_cmd == "all":
             return cmd_cleanup_all()
         else:
             return cmd_cleanup()

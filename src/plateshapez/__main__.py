@@ -68,7 +68,7 @@ Run interactive demo with synthetic images.
 
 Options:
   --cleanup               Clean up demo files after completion
-  --help                  Show this message and exit"""
+  --help                  Show this message and exit""",
     }
     help_text = help_texts.get(command_name, "No help available for this command.")
     console.print(Panel.fit(help_text, title="Usage"))
@@ -240,26 +240,26 @@ logging:
 
 @app.command()
 def demo(
-    cleanup: bool = typer.Option(False, "--cleanup", help="Clean up demo files after completion")
+    cleanup: bool = typer.Option(False, "--cleanup", help="Clean up demo files after completion"),
 ) -> None:
     """Run interactive demo with synthetic images."""
     demo_script = Path("examples/demo_full_workflow.py")
-    
+
     if not demo_script.exists():
         console.print(f"[red]Demo script not found: {demo_script}[/]")
         console.print("[yellow]Make sure you're running from the project root directory[/]")
         raise typer.Exit(1)
-    
+
     console.print("[bold green]🎬 Starting PlateShapez Interactive Demo...[/]")
     console.print("[dim]This will create test images and demonstrate the full workflow[/]")
-    
+
     try:
         # Run the demo script
         result = subprocess.run([sys.executable, str(demo_script)], check=False)
-        
+
         if result.returncode == 0:
             console.print("[bold green]✅ Demo completed successfully![/]")
-            
+
             if cleanup:
                 console.print("[yellow]🧹 Cleaning up demo files...[/]")
                 cleanup_script = Path("scripts/cleanup.py")
@@ -267,11 +267,14 @@ def demo(
                     subprocess.run([sys.executable, str(cleanup_script), "--confirm"], check=False)
                     console.print("[green]✓ Cleanup complete[/]")
             else:
-                console.print("[dim]Demo files preserved. Use 'uv run dev cleanup' or 'python scripts/cleanup.py' to clean up.[/]")
+                console.print(
+                    "[dim]Demo files preserved. Use 'uv run dev cleanup' or "
+                    "'python scripts/cleanup.py' to clean up.[/]"
+                )
         else:
             console.print(f"[red]Demo failed with exit code {result.returncode}[/]")
             raise typer.Exit(result.returncode)
-            
+
     except KeyboardInterrupt:
         console.print("\n[yellow]Demo interrupted by user[/]")
         raise typer.Exit(1)
