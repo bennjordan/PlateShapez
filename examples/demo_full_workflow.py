@@ -191,12 +191,9 @@ def show_results():
     # Show CLI results
     cli_path = Path("demo_dataset")
     if cli_path.exists():
-        images = list((cli_path / "images").glob("*.png"))
-        labels = list((cli_path / "labels").glob("*.json"))
-        print(f"📁 CLI Dataset: {len(images)} images, {len(labels)} metadata files")
-
-        # Show sample metadata
-        if labels:
+        if labels := get_image_data(
+            cli_path, '📁 CLI Dataset: '
+        ):
             with open(labels[0]) as f:
                 sample_meta = json.load(f)
             print("📋 Sample metadata:")
@@ -205,9 +202,16 @@ def show_results():
     # Show API results
     api_path = Path("demo_dataset_api")
     if api_path.exists():
-        images = list((api_path / "images").glob("*.png"))
-        labels = list((api_path / "labels").glob("*.json"))
-        print(f"\n📁 API Dataset: {len(images)} images, {len(labels)} metadata files")
+        labels = get_image_data(api_path, '\n📁 API Dataset: ')
+
+
+def get_image_data(arg0, arg1):
+    """Get images and labels"""
+    images = list((arg0 / "images").glob("*.png"))
+    result = list((arg0 / "labels").glob("*.json"))
+    print(f"{arg1}{len(images)} images, {len(result)} metadata files")
+
+    return result
 
 
 def cleanup():
@@ -263,13 +267,14 @@ def main():
         print("   uv run dev cleanup")
         print("   # or")
         print("   python scripts/cleanup.py")
+        sys.exit(0)
 
     except KeyboardInterrupt:
         print("\n\n⏹️  Demo interrupted by user")
-        sys.exit(1)
+        raise KeyboardInterrupt("User interrupted process") from e
     except Exception as e:
         print(f"\n❌ Demo failed: {e}")
-        sys.exit(1)
+        raise Exception(f"Demo failed: {e}") from e
 
 
 if __name__ == "__main__":
