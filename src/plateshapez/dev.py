@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+from pathlib import Path
 from typing import List
 
 
@@ -59,6 +60,24 @@ def cmd_hooks_run() -> int:
     return sh(["uv", "run", "pre-commit", "run", "--all-files"])
 
 
+def cmd_cleanup() -> int:
+    """Run the cleanup script to reset project to fresh state."""
+    cleanup_script = Path("scripts/cleanup.py")
+    if not cleanup_script.exists():
+        print(f"Cleanup script not found: {cleanup_script}")
+        return 1
+    return sh(["python", str(cleanup_script)])
+
+
+def cmd_cleanup_all() -> int:
+    """Run full cleanup including .venv and build artifacts."""
+    cleanup_script = Path("scripts/cleanup.py")
+    if not cleanup_script.exists():
+        print(f"Cleanup script not found: {cleanup_script}")
+        return 1
+    return sh(["python", str(cleanup_script), "--all"])
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="dev", description="Developer task runner for plateshapez")
     sub = p.add_subparsers(dest="command", required=True)
@@ -75,6 +94,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Convenience alias: `dev pre-commit` => run hooks on all files
     sub.add_parser("pre-commit", help="Alias of hooks run (pre-commit run --all-files)")
+
+    # Cleanup commands
+    cleanup = sub.add_parser("cleanup", help="Reset project to fresh state")
+    cleanup_sub = cleanup.add_subparsers(dest="cleanup_cmd", required=False)
+    cleanup_sub.add_parser("all", help="Full cleanup including .venv and build artifacts")
 
     return p
 
@@ -97,6 +121,11 @@ def main(argv: List[str] | None = None) -> int:
             return cmd_hooks_install()
         if args.hooks_cmd == "run":
             return cmd_hooks_run()
+    if args.command == "cleanup":
+        if hasattr(args, "cleanup_cmd") and args.cleanup_cmd == "all":
+            return cmd_cleanup_all()
+        else:
+            return cmd_cleanup()
 
     print("Unknown command")
     return 2
