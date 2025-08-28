@@ -24,9 +24,9 @@ def create_test_images():
     """Create synthetic test images for the demo."""
     print("🎨 Creating test images...")
 
-    # Create directories
-    os.makedirs("demo_backgrounds", exist_ok=True)
-    os.makedirs("demo_overlays", exist_ok=True)
+    # Create directories in dataset/demo folder
+    os.makedirs("dataset/demo/backgrounds", exist_ok=True)
+    os.makedirs("dataset/demo/overlays", exist_ok=True)
 
     # Create background car images
     colors = [
@@ -51,7 +51,7 @@ def create_test_images():
         # Windows
         draw.rectangle((270, 260, 530, 290), fill=(150, 200, 255), outline=(0, 0, 0), width=2)
 
-        img.save(f"demo_backgrounds/{name}.jpg", "JPEG", quality=95)
+        img.save(f"dataset/demo/backgrounds/{name}.jpg", "JPEG", quality=95)
         print(f"  ✓ Created background: {name}.jpg")
 
     # Create license plate overlays
@@ -80,7 +80,7 @@ def create_test_images():
 
         draw.text((x, y), text, fill=(0, 0, 0, 255), font=font)
 
-        img.save(f"demo_overlays/{name}.png", "PNG")
+        img.save(f"dataset/demo/overlays/{name}.png", "PNG")
         print(f"  ✓ Created overlay: {name}.png")
 
 
@@ -123,9 +123,9 @@ def run_cli_demo():
     # Create custom config for demo
     demo_config = {
         "dataset": {
-            "backgrounds": "./demo_backgrounds",
-            "overlays": "./demo_overlays",
-            "output": "./demo_dataset",
+            "backgrounds": "./dataset/demo/backgrounds",
+            "overlays": "./dataset/demo/overlays",
+            "output": "./dataset/demo_dataset",
             "n_variants": 2,
             "random_seed": 42,
         },
@@ -138,7 +138,7 @@ def run_cli_demo():
     }
 
     # Save config
-    with open("demo_config.yaml", "w") as f:
+    with open("dataset/demo/demo_config.yaml", "w") as f:
         import yaml
 
         yaml.safe_dump(demo_config, f, default_flow_style=False)
@@ -146,7 +146,7 @@ def run_cli_demo():
     # Generate dataset
     print("🎯 Generating dataset with CLI...")
     result = subprocess.run(
-        ["uv", "run", "advplate", "generate", "--config", "demo_config.yaml", "--verbose"],
+        ["uv", "run", "advplate", "generate", "--config", "dataset/demo/demo_config.yaml", "--verbose"],
         capture_output=True,
         text=True,
     )
@@ -167,9 +167,9 @@ def run_python_api_demo():
 
     # Create generator with different settings
     gen = DatasetGenerator(
-        bg_dir="demo_backgrounds",
-        overlay_dir="demo_overlays",
-        out_dir="demo_dataset_api",
+        bg_dir="dataset/demo/backgrounds",
+        overlay_dir="dataset/demo/overlays",
+        out_dir="dataset/demo_dataset_api",
         perturbations=[
             {"name": "shapes", "params": {"num_shapes": 25, "min_size": 2, "max_size": 8}},
             {"name": "noise", "params": {"intensity": 30, "scope": "region"}},

@@ -23,12 +23,12 @@ def get_cleanup_paths():
     """Define paths to clean up, organized by category."""
     return {
         "demo_files": [
-            "backgrounds/",
-            "overlays/",
-            "demo_backgrounds/",
-            "demo_overlays/",
-            "create_test_images.py",
-            "demo_config.yaml",
+            "dataset/demo/backgrounds/",
+            "dataset/demo/overlays/",
+            "dataset/demo/demo_backgrounds/",
+            "dataset/demo/demo_overlays/",
+            "dataset/demo/create_test_images.py",
+            "dataset/demo/demo_config.yaml",
         ],
         "generated_datasets": ["dataset/", "demo_dataset/", "demo_dataset_api/", "outputs/"],
         "build_artifacts": [
