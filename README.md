@@ -32,17 +32,24 @@ This demo will:
 
 - **uv** (Python package manager) installed:
   ```bash
+  # Install uv
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
 ### Installation
 
 ```bash
+# Clone the repository
 git clone https://github.com/benjordan/plateshapez.git
 cd plateshapez
 
+# Create virtual environment and activate
+uv venv
+source .venv/bin/activate
+
 # Install dependencies
-uv sync --group dev
+uv sync
+# or uv sync --group dev for development dependencies
 
 # Install the CLI tool
 uv pip install -e .
