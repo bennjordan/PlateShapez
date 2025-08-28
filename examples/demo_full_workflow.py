@@ -125,7 +125,7 @@ def run_cli_demo():
         "dataset": {
             "backgrounds": "./dataset/demo/backgrounds",
             "overlays": "./dataset/demo/overlays",
-            "output": "./dataset/demo_dataset",
+            "output": "./dataset/demo/demo_dataset",
             "n_variants": 2,
             "random_seed": 42,
         },
@@ -169,7 +169,7 @@ def run_python_api_demo():
     gen = DatasetGenerator(
         bg_dir="dataset/demo/backgrounds",
         overlay_dir="dataset/demo/overlays",
-        out_dir="dataset/demo_dataset_api",
+        out_dir="dataset/demo/demo_dataset_api",
         perturbations=[
             {"name": "shapes", "params": {"num_shapes": 25, "min_size": 2, "max_size": 8}},
             {"name": "noise", "params": {"intensity": 30, "scope": "region"}},

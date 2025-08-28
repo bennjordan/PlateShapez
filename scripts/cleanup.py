@@ -30,7 +30,7 @@ def get_cleanup_paths():
             "dataset/demo/create_test_images.py",
             "dataset/demo/demo_config.yaml",
         ],
-        "generated_datasets": ["dataset/", "demo_dataset/", "demo_dataset_api/", "outputs/"],
+        "generated_datasets": ["dataset/demo_dataset/", "dataset/demo_dataset_api/", "dataset/demo/demo_dataset/", "dataset/demo/demo_dataset_api/", "outputs/"],
         "build_artifacts": [
             "src/plateshapez.egg-info/",
             "build/",
