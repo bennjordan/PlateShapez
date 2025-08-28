@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -13,7 +15,7 @@ from plateshapez.config import load_config
 from plateshapez.perturbations.base import PERTURBATION_REGISTRY
 from plateshapez.pipeline import DatasetGenerator
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer(add_completion=False, no_args_is_help=True)
 console = Console()
 
 
@@ -25,6 +27,7 @@ Commands:
   list      List available perturbations
   info      Show merged configuration (defaults < file < CLI)
   generate  Generate adversarial dataset
+  demo      Run interactive demo with synthetic images
   examples  Print example configuration YAML
   version   Show version info
 
@@ -59,6 +62,13 @@ Options:
   --n_variants INTEGER    Override number of variants
   --as TEXT               Output format: json|yaml
   --help                  Show this message and exit""",
+        "demo": """Usage: advplate demo [OPTIONS]
+
+Run interactive demo with synthetic images.
+
+Options:
+  --cleanup               Clean up demo files after completion
+  --help                  Show this message and exit"""
     }
     help_text = help_texts.get(command_name, "No help available for this command.")
     console.print(Panel.fit(help_text, title="Usage"))
@@ -226,6 +236,48 @@ logging:
   save_metadata: true
 """
     console.print(example_config)
+
+
+@app.command()
+def demo(
+    cleanup: bool = typer.Option(False, "--cleanup", help="Clean up demo files after completion")
+) -> None:
+    """Run interactive demo with synthetic images."""
+    demo_script = Path("examples/demo_full_workflow.py")
+    
+    if not demo_script.exists():
+        console.print(f"[red]Demo script not found: {demo_script}[/]")
+        console.print("[yellow]Make sure you're running from the project root directory[/]")
+        raise typer.Exit(1)
+    
+    console.print("[bold green]🎬 Starting PlateShapez Interactive Demo...[/]")
+    console.print("[dim]This will create test images and demonstrate the full workflow[/]")
+    
+    try:
+        # Run the demo script
+        result = subprocess.run([sys.executable, str(demo_script)], check=False)
+        
+        if result.returncode == 0:
+            console.print("[bold green]✅ Demo completed successfully![/]")
+            
+            if cleanup:
+                console.print("[yellow]🧹 Cleaning up demo files...[/]")
+                cleanup_script = Path("scripts/cleanup.py")
+                if cleanup_script.exists():
+                    subprocess.run([sys.executable, str(cleanup_script), "--confirm"], check=False)
+                    console.print("[green]✓ Cleanup complete[/]")
+            else:
+                console.print("[dim]Demo files preserved. Use 'uv run dev cleanup' or 'python scripts/cleanup.py' to clean up.[/]")
+        else:
+            console.print(f"[red]Demo failed with exit code {result.returncode}[/]")
+            raise typer.Exit(result.returncode)
+            
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Demo interrupted by user[/]")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Demo failed: {e}[/]")
+        raise typer.Exit(1)
 
 
 @app.command()

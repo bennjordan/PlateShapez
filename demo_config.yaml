@@ -1,0 +1,22 @@
+dataset:
+  backgrounds: ./demo_backgrounds
+  n_variants: 2
+  output: ./demo_dataset
+  overlays: ./demo_overlays
+  random_seed: 42
+logging:
+  level: INFO
+  save_metadata: true
+perturbations:
+- name: shapes
+  params:
+    max_size: 12
+    min_size: 3
+    num_shapes: 15
+- name: noise
+  params:
+    intensity: 20
+- name: texture
+  params:
+    intensity: 0.2
+    type: grain

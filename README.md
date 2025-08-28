@@ -6,6 +6,28 @@ A research tool for generating adversarially perturbed license plate overlays on
 
 ## 🚀 Quick Start
 
+### 🎬 Try the Demo First!
+
+For a complete walkthrough that creates test images and demonstrates both CLI and Python API:
+
+```bash
+# Run the integrated CLI demo (recommended)
+uv run advplate demo
+
+# With automatic cleanup
+uv run advplate demo --cleanup
+
+# Or run the demo script directly
+uv run python examples/demo_full_workflow.py
+```
+
+This demo will:
+- Create synthetic car backgrounds and license plate overlays
+- Show CLI usage with custom configurations
+- Demonstrate Python API with different perturbations
+- Generate datasets and show output structure
+- Display metadata and results analysis
+
 ### Prerequisites
 
 - **uv** (Python package manager) installed:
@@ -39,28 +61,31 @@ uv pip install -e .
 2. **Generate dataset:**
    ```bash
    # Generate dataset with defaults
-   advplate generate
+   uv run advplate generate
 
    # Generate with custom config and seed for reproducibility
-   advplate generate --config my_config.yaml --seed 42
+   uv run advplate generate --config my_config.yaml --seed 42
 
    # Preview generation plan
-   advplate generate --dry-run
+   uv run advplate generate --dry-run
    ```
 
 3. **Explore available options:**
    ```bash
+   # Run interactive demo
+   uv run advplate demo
+   
    # List available perturbations
-   advplate list
+   uv run advplate list
 
    # Show current configuration
-   advplate info --as yaml
+   uv run advplate info --as yaml
 
    # Print example configuration
-   advplate examples
+   uv run advplate examples
 
    # Show version
-   advplate version
+   uv run advplate version
    ```
 
 ### Python API
@@ -133,16 +158,18 @@ logging:
 ### CLI Reference
 
 **Generation Commands:**
-- `advplate generate` - Generate dataset with defaults
-- `advplate generate --config file.yaml --seed 42` - Generate with config and seed
-- `advplate generate --dry-run` - Preview without creating files
+- `uv run advplate generate` - Generate dataset with defaults
+- `uv run advplate generate --config file.yaml --seed 42` - Generate with config and seed
+- `uv run advplate generate --dry-run` - Preview without creating files
 
-**Information Commands:**
-- `advplate list` - List available perturbations
-- `advplate info` - Show current configuration (JSON)
-- `advplate info --as yaml` - Show configuration in YAML format
-- `advplate examples` - Print example configuration
-- `advplate version` - Show version
+**Demo & Information Commands:**
+- `uv run advplate demo` - Run interactive demo with synthetic images
+- `uv run advplate demo --cleanup` - Run demo with automatic cleanup
+- `uv run advplate list` - List available perturbations
+- `uv run advplate info` - Show current configuration (JSON)
+- `uv run advplate info --as yaml` - Show configuration in YAML format
+- `uv run advplate examples` - Print example configuration
+- `uv run advplate version` - Show version
 
 **CLI Options:**
 - `--config PATH` - Path to YAML/JSON configuration file
@@ -190,6 +217,10 @@ You can use either the console script (after `uv sync`) or the Bash wrapper.
   # Pre-commit hooks
   uv run dev hooks install   # installs pre-commit & pre-push hooks
   uv run dev pre-commit      # run hooks on all files
+  
+  # Cleanup commands
+  uv run dev cleanup         # standard cleanup (demo files and datasets)
+  uv run dev cleanup all     # full cleanup (includes .venv and build artifacts)
   ```
 
 - Bash wrapper (works without installing the package):
@@ -212,6 +243,8 @@ These map to the same underlying tools and are aligned with CI and `scripts/chec
 - `check`: runs format, lint, and type in sequence (same as `scripts/check.sh`)
 - `hooks install`: `pre-commit install --hook-type pre-commit --hook-type pre-push`
 - `pre-commit`: `pre-commit run --all-files`
+- `cleanup`: reset project to fresh state (removes demo files and datasets)
+- `cleanup all`: full cleanup including .venv and build artifacts
 
 ## 📚 Additional Documentation
 
@@ -219,6 +252,8 @@ These map to the same underlying tools and are aligned with CI and `scripts/chec
 - **[Usage Examples](docs/usage_examples.md)** - Comprehensive examples for CLI and Python API
 - **[Dataset Card](DATASET_CARD.md)** - Ethical guidelines and responsible use information
 - **[Code Examples](examples/)** - Working Python scripts demonstrating API usage
+  - `demo_full_workflow.py` - Complete end-to-end demo with synthetic images
+  - `generate_defaults.py` - Basic API usage examples
 
 ## 🔬 Research & Ethics
 
@@ -236,6 +271,21 @@ uv run pytest --cov=plateshapez
 
 # Run specific test file
 uv run pytest tests/test_pipeline.py
+```
+
+### Reset to Fresh State
+
+To clean up all generated files and reset for fresh testing:
+
+```bash
+# Using dev command (recommended)
+uv run dev cleanup         # standard cleanup
+uv run dev cleanup all     # full cleanup
+
+# Direct script usage
+python scripts/cleanup.py
+python scripts/cleanup.py --all
+python scripts/cleanup.py --dry-run  # preview mode
 ```
 
 ## CI
