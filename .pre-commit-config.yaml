@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff-format (uv)
+        entry: uv run ruff format .
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+
+      - id: ruff
+        name: ruff (uv)
+        entry: uv run ruff check . --fix
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+
+      - id: mypy
+        name: mypy (uv)
+        entry: uv run mypy .
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]

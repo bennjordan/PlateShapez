@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-typecheck:
+    # Use self-hosted runner pool with label 'plateshapez'
+    runs-on: [self-hosted, plateshapez]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Debug workspace
+        shell: bash
+        working-directory: .
+        run: |
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          pwd
+          ls -la
+
+      - name: Sanitize PATH (remove non-directories)
+        shell: bash
+        working-directory: .
+        run: |
+          ORIG_PATH="$PATH"
+          NEW_PATH=""
+          IFS=':' read -ra PARTS <<< "$ORIG_PATH"
+          for p in "${PARTS[@]}"; do
+            if [ -d "$p" ]; then
+              if [ -z "$NEW_PATH" ]; then NEW_PATH="$p"; else NEW_PATH="$NEW_PATH:$p"; fi
+            else
+              echo "[sanitizer] Dropping non-directory PATH entry: $p" >&2
+            fi
+          done
+          # Ensure common system bins are present
+          case ":$NEW_PATH:" in
+            *:/usr/bin:*) :;;
+            *) NEW_PATH="$NEW_PATH:/usr/bin";;
+          esac
+          echo "PATH=$NEW_PATH" >> $GITHUB_ENV
+          echo "Sanitized PATH: $NEW_PATH"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        shell: bash
+        working-directory: .
+        run: |
+          if ! command -v uv >/dev/null 2>&1; then
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+          fi
+
+      - name: Cache uv and virtualenv
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-py3.12-uv-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-py3.12-uv-
+
+      - name: Sync dev dependencies
+        shell: bash
+        working-directory: .
+        run: |
+          echo "Current dir: $(pwd)"
+          test -f pyproject.toml && echo "Found pyproject.toml" || (echo "pyproject.toml missing" && ls -la && exit 1)
+          uv --version
+          uv sync --group dev
+
+      - name: Run formatting, linting, type checks
+        shell: bash
+        working-directory: .
+        run: |
+          chmod +x scripts/check.sh
+          ./scripts/check.sh
