@@ -1,0 +1,142 @@
+# 🤝 PlateShapez Contributor Guide
+
+Welcome! Thanks for contributing to PlateShapez. This guide explains the philosophy, workflows, and conventions so you can get productive quickly.
+
+---
+
+## 🎯 Project Philosophy
+
+PlateShapez is designed as a **research-grade, production-ready tool** for generating adversarial license plate datasets.
+
+Our design principles:
+
+1. **User-first CLI UX**: every error should show contextual help.
+2. **Safe by default**: configs validate inputs, metadata is explicit, reproducibility is supported (`--seed`).
+3. **Extensible**: perturbations are modular and pluggable via a registry.
+4. **Consistency**: CI, hooks, CLI, and docs all agree on formatting, typing, and linting.
+
+---
+
+## 📦 Project Layout
+
+```
+plateshapez/
+├── src/plateshapez/           # Core library
+│   ├── perturbations/         # Built-in perturbations
+│   ├── utils/                 # IO + helpers
+│   ├── __main__.py            # CLI entrypoint
+│   ├── config.py              # Config loading/merging
+│   ├── pipeline.py            # DatasetGenerator
+│   └── py.typed               # Type info marker
+├── tests/                     # Unit + integration tests
+├── examples/                  # CLI + API demos
+├── scripts/                   # Dev tooling (dev.py, cleanup.py)
+└── docs/                      # Specs + guides
+```
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Install dependencies (with uv)
+uv sync --dev
+
+# Run formatting, linting, type checking
+uv run dev format
+uv run dev lint
+uv run dev type
+uv run dev check    # all above
+
+# Run tests
+uv run pytest
+```
+
+---
+
+## 🖥️ CLI Usage
+
+All commands run through `advplate`:
+
+```bash
+uv run advplate list              # Show available perturbations
+uv run advplate info              # Show merged config
+uv run advplate generate          # Generate datasets
+uv run advplate examples          # Print example config YAML
+uv run advplate demo              # Run interactive demo
+uv run advplate version           # Show version
+```
+
+**Notes:**
+
+* `--seed` sets deterministic randomness.
+* `info --as yaml` dumps config as YAML.
+* `generate --dry-run` shows what would happen without writing files.
+
+Every error path prints the help menu for discoverability.
+
+---
+
+## 🧩 Adding a New Perturbation
+
+1. Create a file in `src/plateshapez/perturbations/` (e.g. `mypert.py`).
+2. Subclass `Perturbation` and decorate with `@register`.
+
+```python
+from plateshapez.perturbations.base import Perturbation, register
+
+@register
+class BlurPerturbation(Perturbation):
+    """Gaussian blur with configurable radius."""
+    name = "blur"
+
+    def apply(self, img, region):
+        radius = self.params.get("radius", 3)
+        return img.filter(ImageFilter.GaussianBlur(radius))
+```
+
+3. That’s it — it’ll appear in `advplate list` automatically.
+4. Add at least one test in `tests/test_perturbations.py`.
+
+---
+
+## 🧪 Testing Philosophy
+
+* **Unit tests**: small, focused (perturbations, config merging).
+* **Integration tests**: exercise CLI and DatasetGenerator end-to-end.
+* **Determinism tests**: verify seeding produces identical outputs.
+
+Run everything with:
+
+```bash
+uv run pytest -q
+```
+
+CI will reject if lint/type/tests fail.
+
+---
+
+## 📚 Documentation
+
+* `README.md`: quickstart for users.
+* `docs/project_spec.md`: technical deep dive.
+* `DATASET_CARD.md`: ethical use and dataset intent.
+
+If you add new features (e.g. perturbations, CLI flags), update both the README and project spec.
+
+---
+
+## 🛠️ Dev Conventions
+
+* **Formatting**: `ruff format` (like Black).
+* **Linting**: `ruff check . --fix`.
+* **Typing**: strict `mypy` mode, 100% coverage.
+* **Commits**: clear, imperative messages (e.g. `feat: add blur perturbation`).
+* **PRs**: include a short summary + checklist of tests/docs updated.
+
+---
+
+## ⚖️ Ethics Reminder
+
+This project is for **research and robustness testing only**.
+Not for production use in hiding plates or evading lawful systems.
