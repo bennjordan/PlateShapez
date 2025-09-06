@@ -40,7 +40,7 @@ This demo will:
 
 ```bash
 # Clone the repository
-git clone https://github.com/benjordan/plateshapez.git
+git clone https://github.com/bennjordan/plateshapez.git
 cd plateshapez
 
 # Create virtual environment and activate
